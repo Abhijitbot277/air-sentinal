@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AIR SENTINAL Monitoring Event",
+  "type": "object",
+  "required": ["event_id", "worker_id", "wristband_id", "timestamp", "status", "simulated"],
+  "properties": {
+    "event_id": {"type": "string"},
+    "worker_id": {"type": "string"},
+    "wristband_id": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "status": {"type": "string", "enum": ["SAFE", "ALERT", "UNKNOWN"]},
+    "response_index": {"type": ["number", "null"]},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "simulated": {"type": "boolean"},
+    "source": {"type": "string"}
+  },
+  "additionalProperties": false
+}
