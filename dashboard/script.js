@@ -11,11 +11,6 @@ const responseRing = document.getElementById('responseRing');
 const responseValue = document.getElementById('responseValue');
 const responseText = document.getElementById('responseText');
 const responseDesc = document.getElementById('responseDesc');
-const alertCard = document.getElementById('alertCard');
-const alertTitle = document.getElementById('alertTitle');
-const alertMessage = document.getElementById('alertMessage');
-const alertTime = document.getElementById('alertTime');
-const alertWorker = document.getElementById('alertWorker');
 const eventCount = document.getElementById('eventCount');
 const statusNote = document.getElementById('statusNote');
 const systemStatus = document.getElementById('systemStatus');
@@ -40,6 +35,9 @@ const durationStat = document.getElementById('durationStat');
 const healthDuration = document.getElementById('healthDuration');
 const shiftBadge = document.getElementById('shiftBadge');
 const attendanceHistory = document.getElementById('attendanceHistory');
+const h2sValue = document.getElementById('h2sValue');
+const h2sStatus = document.getElementById('h2sStatus');
+const h2sNote = document.getElementById('h2sNote');
 
 const SERVICE_UUID = '7b2a0001-6c4a-4d3b-9c1f-4153454e544c';
 const CHARACTERISTIC_UUID = '7b2a0002-6c4a-4d3b-9c1f-4153454e544c';
@@ -107,41 +105,60 @@ document.getElementById('resetShiftBtn').addEventListener('click',resetShift);
 function randomSample() {
   const response=Math.floor(18+Math.random()*78);
   const raw=Math.round(response*4095/100);
-  return {event_id:`AS-${Date.now().toString().slice(-6)}`,worker_id:workerId.textContent||'AS-024',wristband_id:wristbandId.textContent||'WB-024',response_index:response,sensor_raw:raw,status:response>=70?'ALERT':response>=40?'UNKNOWN':'SAFE',source:'SIMULATED',timestamp:new Date().toISOString()};
+  const h2s_ppm=Number((Math.random()*7).toFixed(2));
+  const concentrationStatus=h2sStatusFor(h2s_ppm);
+  return {event_id:`AS-${Date.now().toString().slice(-6)}`,worker_id:workerId.textContent||'AS-024',wristband_id:wristbandId.textContent||'WB-024',response_index:response,sensor_raw:raw,h2s_ppm,status:response>=70?'ALERT':response>=40?'UNKNOWN':'SAFE',source:'SIMULATED',timestamp:new Date().toISOString(),concentration_status:concentrationStatus.label};
 }
 function normaliseSample(data) {
   const response=Math.max(0,Math.min(100,Number(data.response_index??data.response??0)));
   const status=String(data.status||(response>=70?'ALERT':response>=40?'UNKNOWN':'SAFE')).toUpperCase();
   const raw=Number.isFinite(Number(data.sensor_raw))?Number(data.sensor_raw):Math.round(response*4095/100);
-  return {event_id:data.event_id||`AS-${Date.now().toString().slice(-6)}`,worker_id:data.worker_id||'AS-024',wristband_id:data.wristband_id||'WB-024',response_index:Math.round(response),sensor_raw:raw,status:['SAFE','ALERT','UNKNOWN'].includes(status)?status:'UNKNOWN',source:data.source||'WRISTBAND',timestamp:data.timestamp||new Date().toISOString()};
+  const ppmRaw=data.h2s_ppm ?? data.h2s_ppm_value ?? data.concentration_ppm;
+  const ppm=ppmRaw===null || ppmRaw===undefined || ppmRaw==='' ? null : Number(ppmRaw);
+  return {event_id:data.event_id||`AS-${Date.now().toString().slice(-6)}`,worker_id:data.worker_id||'AS-024',wristband_id:data.wristband_id||'WB-024',response_index:Math.round(response),sensor_raw:raw,h2s_ppm:Number.isFinite(ppm)?Math.max(0,ppm):null,status:['SAFE','ALERT','UNKNOWN'].includes(status)?status:'UNKNOWN',source:data.source||'WRISTBAND',timestamp:data.timestamp||new Date().toISOString()};
+}
+function h2sStatusFor(ppm) {
+  if (!Number.isFinite(ppm)) return {label:'NO CALIBRATED READING',className:'none',note:'No calibrated ppm value supplied'};
+  if (ppm <= 1) return {label:'LOW',className:'low',note:'0–1 ppm prototype band'};
+  if (ppm <= 5) return {label:'ELEVATED',className:'elevated',note:'Above 1 ppm; prototype warning band'};
+  if (ppm <= 7) return {label:'HIGH',className:'high',note:'Above 5 ppm; prototype high band'};
+  return {label:'OVER RANGE',className:'over',note:'Above the 0–7 ppm prototype display range'};
+}
+function updateH2SDisplay(ppm) {
+  const result=h2sStatusFor(ppm);
+  h2sValue.textContent=Number.isFinite(ppm)?ppm.toFixed(2):'—';
+  h2sStatus.textContent=result.label;
+  h2sStatus.className=`h2s-status ${result.className}`;
+  h2sNote.textContent=result.note;
 }
 
 function applySample(raw) {
   const sample=normaliseSample(raw),time=formatTime(sample.timestamp),response=sample.response_index;
-  workerId.textContent=sample.worker_id; workerIdTitle.textContent=sample.worker_id; healthWorker.textContent=sample.worker_id; wristbandId.textContent=sample.wristband_id; alertWorker.textContent=sample.worker_id; sampleIdEl.textContent=sample.event_id; sampleTime.textContent=time; if(rawSensorValue) rawSensorValue.textContent=String(sample.sensor_raw);
-  lastSync.textContent='Just now';
+  const concentration=h2sStatusFor(sample.h2s_ppm);
+  workerId.textContent=sample.worker_id; workerIdTitle.textContent=sample.worker_id; healthWorker.textContent=sample.worker_id; wristbandId.textContent=sample.wristband_id; sampleIdEl.textContent=sample.event_id; sampleTime.textContent=time; if(rawSensorValue) rawSensorValue.textContent=String(sample.sensor_raw);
+  lastSync.textContent='Just now'; updateH2SDisplay(sample.h2s_ppm);
   exposureCard.classList.toggle('alert-mode',sample.status==='ALERT'); signal.className=`signal ${sample.status.toLowerCase()}`; signal.textContent=sample.status; responseValue.textContent=response; responseRing.style.borderColor=sample.status==='ALERT'?'#c85a61':sample.status==='UNKNOWN'?'#c5a65b':'#1d7770';
   if(sample.status==='ALERT') {
-    exposureTitle.textContent='Exposure Response Detected'; responseText.textContent='HIGH SENSOR RESPONSE'; responseText.style.color='#ff8585'; responseDesc.textContent=`Normalized sensor response ${response}/100 from raw ADC signal ${sample.sensor_raw}/4095. This is not a distance measurement and not a validated H₂S concentration.`;
-    systemStatus.textContent='ALERT'; systemStatus.className='bad'; statusNote.textContent='Active sensor-response alert'; statusNote.style.color='#ff8585'; alertCard.classList.add('active'); alertTitle.textContent='H₂S Exposure Response Alert'; alertMessage.textContent=`Worker ${sample.worker_id}: sensor response ${response}/100 (raw ADC ${sample.sensor_raw}/4095). Event logged for review.`; alertTime.textContent=time;
+    exposureTitle.textContent='Exposure Response Detected'; responseText.textContent='HIGH SENSOR RESPONSE'; responseText.style.color='#ff8585'; responseDesc.textContent=`Sensor response ${response}/100 from raw ADC signal ${sample.sensor_raw}/4095. H₂S concentration is ${Number.isFinite(sample.h2s_ppm)?sample.h2s_ppm.toFixed(2)+' ppm':'not calibrated'}.`;
+    systemStatus.textContent='ALERT'; systemStatus.className='bad'; statusNote.textContent='Active sensor-response alert'; statusNote.style.color='#ff8585';
   } else if(sample.status==='UNKNOWN') {
-    exposureTitle.textContent='Uncertain Sensor Response'; responseText.textContent='REQUIRES VALIDATION'; responseText.style.color='#d6bd6a'; responseDesc.textContent=`Normalized sensor response ${response}/100 from raw ADC signal ${sample.sensor_raw}/4095. Thresholds require experimental calibration before ppm interpretation.`;
-    systemStatus.textContent='UNKNOWN'; systemStatus.className='warn'; statusNote.textContent='Calibration / validation required'; statusNote.style.color='#d6bd6a'; alertCard.classList.remove('active'); alertTitle.textContent='Sample Requires Review'; alertMessage.textContent=`Worker ${sample.worker_id}: normalized sensor response ${response}/100. No ppm value is claimed.`; alertTime.textContent=time;
+    exposureTitle.textContent='Uncertain Sensor Response'; responseText.textContent='REQUIRES VALIDATION'; responseText.style.color='#d6bd6a'; responseDesc.textContent=`Sensor response ${response}/100 from raw ADC signal ${sample.sensor_raw}/4095. Ppm interpretation requires experimental calibration.`;
+    systemStatus.textContent='UNKNOWN'; systemStatus.className='warn'; statusNote.textContent='Calibration / validation required'; statusNote.style.color='#d6bd6a';
   } else {
-    exposureTitle.textContent='Normal Sensor Response'; responseText.textContent='NORMAL'; responseText.style.color=''; responseDesc.textContent=`Normalized sensor response ${response}/100 from raw ADC signal ${sample.sensor_raw}/4095. The score is for prototype comparison; it is not distance or ppm.`;
-    systemStatus.textContent='SAFE'; systemStatus.className='good'; statusNote.textContent='No active sensor-response alert'; statusNote.style.color=''; alertCard.classList.remove('active'); alertTitle.textContent='All Clear'; alertMessage.textContent='The monitoring system received a sample in the demo safe state.'; alertTime.textContent=time;
+    exposureTitle.textContent='Normal Sensor Response'; responseText.textContent='NORMAL'; responseText.style.color=''; responseDesc.textContent=`Sensor response ${response}/100 from raw ADC signal ${sample.sensor_raw}/4095. H₂S concentration is shown separately when calibrated data is available.`;
+    systemStatus.textContent='SAFE'; systemStatus.className='good'; statusNote.textContent='No active sensor-response alert'; statusNote.style.color='';
   }
   events.unshift(sample); events=events.slice(0,100); saveEvents(); eventCount.textContent=String(events.filter(e=>e.status==='ALERT').length).padStart(2,'0'); renderHistory();
 }
 function renderHistory(){
-  if(!events.length){history.innerHTML='<tr class="empty"><td colspan="6">No samples recorded yet.</td></tr>';return;}
-  history.innerHTML=events.slice(0,20).map(e=>`<tr><td>${formatTime(e.timestamp)}</td><td>${e.event_id}</td><td>${e.worker_id}</td><td>${e.response_index} / 100</td><td><span class="status-pill ${e.status.toLowerCase()}">${e.status}</span></td><td>${e.source}</td></tr>`).join('');
+  if(!events.length){history.innerHTML='<tr class="empty"><td colspan="7">No samples recorded yet.</td></tr>';return;}
+  history.innerHTML=events.slice(0,20).map(e=>`<tr><td>${formatTime(e.timestamp)}</td><td>${e.event_id}</td><td>${e.worker_id}</td><td>${e.response_index} / 100</td><td>${Number.isFinite(Number(e.h2s_ppm))?Number(e.h2s_ppm).toFixed(2):'—'}</td><td><span class="status-pill ${e.status.toLowerCase()}">${e.status}</span></td><td>${e.source}</td></tr>`).join('');
 }
 function renderAttendanceHistory(){
   if(!attendanceRecords.length){attendanceHistory.innerHTML='<tr class="empty"><td colspan="6">No completed attendance records yet.</td></tr>';return;}
   attendanceHistory.innerHTML=attendanceRecords.slice(0,20).map(r=>`<tr><td>${r.worker_id}</td><td>${r.wristband_id}</td><td>${formatDateTime(r.entry)}</td><td>${formatDateTime(r.exit)}</td><td>${r.duration}</td><td><span class="status-pill safe">${r.source||'RECORDED'}</span></td></tr>`).join('');
 }
-function clearAlert(){ applySample({event_id:'AS-CLEAR',worker_id:workerId.textContent,wristband_id:wristbandId.textContent,response_index:12,sensor_raw:491,status:'SAFE',source:'MANUAL CLEAR',timestamp:new Date().toISOString()}); }
+function clearAlert(){ applySample({event_id:'AS-CLEAR',worker_id:workerId.textContent,wristband_id:wristbandId.textContent,response_index:12,sensor_raw:491,h2s_ppm:null,status:'SAFE',source:'MANUAL CLEAR',timestamp:new Date().toISOString()}); }
 simulateBtn.addEventListener('click',()=>applySample(randomSample())); clearBtn.addEventListener('click',clearAlert);
 
 async function connectWristband(){
@@ -158,4 +175,4 @@ function handleBluetoothData(event){
   try{const data=JSON.parse(new TextDecoder().decode(event.target.value)); if(data.event_type==='ENTRY'){recordEntry('WRISTBAND');return;} if(data.event_type==='EXIT'){recordExit('WRISTBAND');return;} applySample(data);}catch(error){connectionText.textContent='Received data was not valid JSON. Check the wristband firmware format.';}
 }
 connectBtn.addEventListener('click',connectWristband);
-renderHistory(); renderAttendanceHistory(); updateShiftUI(); eventCount.textContent=String(events.filter(e=>e.status==='ALERT').length).padStart(2,'0');
+renderHistory(); renderAttendanceHistory(); updateShiftUI(); updateH2SDisplay(null); eventCount.textContent=String(events.filter(e=>e.status==='ALERT').length).padStart(2,'0');
