@@ -28,17 +28,17 @@
       </section>
       <section class="dashboard-grid">
         <article class="card exposure-card" id="exposureCard">
-          <div class="card-heading"><div><p class="eyebrow">H₂S MONITOR</p><h3 id="exposureTitle">No Exposure Response Detected</h3></div><div class="signal safe" id="signal">SAFE</div></div>
-          <div class="response"><div class="response-ring" id="responseRing"><span id="responseValue">12</span><small>NORMALIZED SIGNAL</small></div><div class="response-copy"><span>Sensor signal</span><strong id="responseText">NORMAL</strong><p id="responseDesc">The normalized sensor signal is shown separately from H₂S concentration. A ppm value is displayed only when calibrated concentration data is supplied.</p></div></div>
+          <div class="card-heading"><div><p class="eyebrow">H₂S MONITOR</p><h3 id="exposureTitle">H₂S Concentration Status</h3></div><div class="signal safe" id="signal">SAFE</div></div>
+          <div class="response"><div class="response-ring" id="responseRing"><span id="h2sRingValue">—</span><small>H₂S PPM</small></div><div class="response-copy"><span>APPROX. CONCENTRATION</span><strong id="responseText">NO READING</strong><p id="responseDesc">The dashboard shows H₂S concentration in ppm when calibrated sensor data is supplied. The ring and color indicate the current concentration band.</p></div></div>
           <div class="concentration-panel">
-            <div class="concentration-heading"><div><span>H₂S CONCENTRATION</span><small>Calibrated reading</small></div><strong><span id="h2sValue">—</span> <small>ppm</small></strong></div>
-            <div class="concentration-scale" aria-label="H2S concentration scale">
-              <div class="scale-segment low"><span>0–1</span><small>LOW</small></div>
-              <div class="scale-segment elevated"><span>&gt;1–5</span><small>ELEVATED</small></div>
-              <div class="scale-segment high"><span>&gt;5–7</span><small>HIGH</small></div>
-              <div class="scale-segment over"><span>&gt;7</span><small>OVER RANGE</small></div>
+            <div class="concentration-heading"><div><span>H₂S CONCENTRATION RANGE</span><small>Reference display bands</small></div><strong><span id="h2sValue">—</span> <small>ppm</small></strong></div>
+            <div class="concentration-scale" aria-label="H2S concentration reference scale">
+              <div class="scale-segment low"><span>0–1</span><small>LOW · GREEN</small></div>
+              <div class="scale-segment elevated"><span>&gt;1–5</span><small>CAUTION · YELLOW</small></div>
+              <div class="scale-segment high"><span>&gt;5–10</span><small>HIGH · ORANGE</small></div>
+              <div class="scale-segment over"><span>&gt;10</span><small>DANGER · RED</small></div>
             </div>
-            <div class="concentration-status"><span id="h2sStatus">NO CALIBRATED READING</span><small id="h2sNote">Prototype display range: 0–7 ppm</small></div>
+            <div class="concentration-status"><span id="h2sStatus">NO CALIBRATED READING</span><small id="h2sNote">0–1 green · &gt;1–5 yellow · &gt;5–10 orange · &gt;10 red</small></div>
           </div>
           <div class="sample-meta"><span>Sample <b id="sampleId">AS-0000</b></span><span>Raw ADC <b id="rawSensorValue">—</b></span><span id="sampleTime">Waiting</span></div>
         </article>
@@ -47,7 +47,7 @@
       <section class="card history-card"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>H₂S PPM</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="7">No samples recorded yet.</td></tr></tbody></table></div></section>
       <section class="card attendance-history-card"><div class="card-heading"><div><p class="eyebrow">ATTENDANCE DATABASE</p><h3>Entry / Exit Records</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>WORKER</th><th>WRISTBAND</th><th>ENTRY TIME</th><th>EXIT TIME</th><th>DURATION</th><th>STATUS</th></tr></thead><tbody id="attendanceHistory"><tr class="empty"><td colspan="6">No completed attendance records yet.</td></tr></tbody></table></div></section>
     </main>
-    <footer>Prototype / Demonstration · H₂S ppm is shown only when calibrated concentration data is supplied · Color bands are a prototype visualization, not a substitute for a certified gas monitor · Entry/exit records are demo data unless supplied by a real attendance system.</footer>
+    <footer>Prototype / Demonstration · H₂S ppm is shown only when calibrated concentration data is supplied · Reference bands: 1 ppm, 5 ppm and 10 ppm are used for presentation; they are not a substitute for certified gas-monitor limits or time-weighted exposure assessment · Entry/exit records are demo data unless supplied by a real attendance system.</footer>
   </div>
   <script src="script.js"></script>
 </body>
