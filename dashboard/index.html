@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071014">
   <title>AIR SENTINAL — Worker Safety Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -10,45 +11,53 @@
   <div class="app-shell">
     <header class="topbar">
       <div class="brand"><div class="brand-mark">AS</div><div><h1>AIR SENTINAL</h1><span>SMART WORKER SAFETY</span></div></div>
-      <div class="system-status"><span class="pulse"></span> SYSTEM ONLINE <small>DEMO MODE</small></div>
+      <div class="system-status"><span class="pulse"></span> <span id="systemState">SYSTEM ONLINE</span> <small id="modeLabel">DEMO MODE</small></div>
     </header>
 
     <main>
       <section class="hero">
-        <div><p class="eyebrow">CENTRAL MONITORING SYSTEM</p><h2>Worker Safety Command Center</h2><p class="sub">Monitor worker identity, sensing response and safety events from one dashboard.</p></div>
+        <div><p class="eyebrow">CENTRAL MONITORING SYSTEM</p><h2>Worker Safety Command Center</h2><p class="sub">Receive a wristband sample, identify the worker, log the response and show the event history in one place.</p></div>
         <div class="clock" id="clock">--:--:--</div>
       </section>
 
+      <section class="connection card">
+        <div><p class="eyebrow">WRISTBAND LINK</p><h3>Device Connection</h3><p id="connectionText">No physical wristband connected. Use simulation for presentation or connect an ESP32-C3 prototype over Bluetooth.</p></div>
+        <div class="connection-actions"><button class="btn primary" id="connectBtn">Connect Wristband</button><button class="btn secondary" id="simulateBtn">Simulate Sample</button><button class="btn secondary" id="clearBtn">Clear Alert</button></div>
+      </section>
+
       <section class="stats-grid">
-        <article class="card stat"><span>ACTIVE WORKERS</span><strong>01</strong><em>Wristband connected</em></article>
-        <article class="card stat"><span>SYSTEM STATUS</span><strong class="good">SAFE</strong><em id="statusNote">No active exposure alert</em></article>
-        <article class="card stat"><span>EXPOSURE EVENTS</span><strong id="eventCount">00</strong><em>Recorded in this demo</em></article>
-        <article class="card stat"><span>ATTENDANCE</span><strong>100%</strong><em>Worker present</em></article>
+        <article class="card stat"><span>ACTIVE WORKERS</span><strong id="activeWorkers">01</strong><em>Wristband identity</em></article>
+        <article class="card stat"><span>SYSTEM STATUS</span><strong class="good" id="systemStatus">SAFE</strong><em id="statusNote">No active exposure alert</em></article>
+        <article class="card stat"><span>EXPOSURE EVENTS</span><strong id="eventCount">00</strong><em>Stored in this browser</em></article>
+        <article class="card stat"><span>LAST RESPONSE</span><strong id="lastResponse">12</strong><em>Prototype response index / 100</em></article>
       </section>
 
       <section class="dashboard-grid">
         <article class="card worker-card">
-          <div class="card-heading"><div><p class="eyebrow">WORKER PROFILE</p><h3>AS-024</h3></div><span class="badge connected">CONNECTED</span></div>
-          <div class="worker-main"><div class="avatar">AS</div><div><h4>Maintenance Worker</h4><p>Worker ID: <b>AS-024</b></p><p>Wristband: <b>WB-024</b></p><p>Shift: <b>Day Shift</b></p></div></div>
+          <div class="card-heading"><div><p class="eyebrow">WORKER PROFILE</p><h3 id="workerIdTitle">AS-024</h3></div><span class="badge connected" id="deviceBadge">DEMO</span></div>
+          <div class="worker-main"><div class="avatar">AS</div><div><h4 id="workerRole">Maintenance Worker</h4><p>Worker ID: <b id="workerId">AS-024</b></p><p>Wristband: <b id="wristbandId">WB-024</b></p><p>Shift: <b>Day Shift</b></p></div></div>
           <div class="mini-grid"><div><span>Attendance</span><b class="good">PRESENT</b></div><div><span>Last Sync</span><b id="lastSync">Just now</b></div></div>
         </article>
 
         <article class="card exposure-card" id="exposureCard">
-          <div class="card-heading"><div><p class="eyebrow">H₂S MONITOR</p><h3 id="exposureTitle">No Exposure Detected</h3></div><div class="signal safe" id="signal">SAFE</div></div>
-          <div class="response"><div class="response-ring" id="responseRing"><span id="responseValue">12</span><small>RESPONSE INDEX</small></div><div class="response-copy"><span>Colorimetric response</span><strong id="responseText">NORMAL</strong><p id="responseDesc">No simulated exposure event is active.</p></div></div>
-          <div class="actions"><button class="btn danger" id="simulateBtn">Simulate H₂S Exposure</button><button class="btn secondary" id="clearBtn">Clear Alert</button></div>
+          <div class="card-heading"><div><p class="eyebrow">H₂S MONITOR</p><h3 id="exposureTitle">No Exposure Response Detected</h3></div><div class="signal safe" id="signal">SAFE</div></div>
+          <div class="response"><div class="response-ring" id="responseRing"><span id="responseValue">12</span><small>RESPONSE INDEX</small></div><div class="response-copy"><span>Colorimetric response</span><strong id="responseText">NORMAL</strong><p id="responseDesc">No sample alert is active. The index is a prototype signal value, not an H₂S concentration.</p></div></div>
+          <div class="sample-meta"><span>Sample <b id="sampleId">AS-0000</b></span><span id="sampleTime">Waiting</span></div>
         </article>
       </section>
 
       <section class="lower-grid">
-        <article class="card alert-card" id="alertCard"><div class="card-heading"><div><p class="eyebrow">LIVE EVENT</p><h3 id="alertTitle">All Clear</h3></div><span class="event-dot" id="eventDot"></span></div><p id="alertMessage">The monitoring system is ready. Simulated events will appear here.</p><div class="event-meta"><span>Worker <b>AS-024</b></span><span id="alertTime">No active event</span></div></article>
-        <article class="card health-card"><div class="card-heading"><div><p class="eyebrow">HEALTH & ATTENDANCE</p><h3>Worker Overview</h3></div><span class="badge demo">DEMO DATA</span></div><div class="health-grid"><div><span>Blood Pressure</span><b>118 / 76</b><small>Demo value</small></div><div><span>Attendance</span><b class="good">PRESENT</b><small>Current shift</small></div><div><span>Worker ID</span><b>AS-024</b><small>Verified locally</small></div><div><span>Health Status</span><b class="good">NORMAL</b><small>Demo record</small></div></div></article>
+        <article class="card alert-card" id="alertCard"><div class="card-heading"><div><p class="eyebrow">LIVE EVENT</p><h3 id="alertTitle">All Clear</h3></div><span class="event-dot" id="eventDot"></span></div><p id="alertMessage">The monitoring system is ready. Simulated or Bluetooth samples will appear here.</p><div class="event-meta"><span>Worker <b id="alertWorker">AS-024</b></span><span id="alertTime">No active event</span></div></article>
+        <article class="card health-card"><div class="card-heading"><div><p class="eyebrow">HEALTH & ATTENDANCE</p><h3>Worker Overview</h3></div><span class="badge demo">DEMO DATA</span></div><div class="health-grid"><div><span>Blood Pressure</span><b>118 / 76</b><small>Demo value</small></div><div><span>Attendance</span><b class="good">PRESENT</b><small>Current shift</small></div><div><span>Worker ID</span><b id="healthWorker">AS-024</b><small>Device identity</small></div><div><span>Health Status</span><b class="good">NORMAL</b><small>Demo record</small></div></div></article>
       </section>
 
-      <section class="card history-card"><div class="card-heading"><div><p class="eyebrow">EVENT HISTORY</p><h3>Recent Exposure Events</h3></div><span class="badge demo">SIMULATED</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>WORKER</th><th>EVENT</th><th>RESPONSE</th><th>STATUS</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="5">No exposure events recorded yet.</td></tr></tbody></table></div></section>
+      <section class="card history-card">
+        <div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo" id="databaseBadge">LOCAL DEMO DATABASE</span></div>
+        <div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="6">No samples recorded yet.</td></tr></tbody></table></div>
+      </section>
     </main>
 
-    <footer>Prototype / Demonstration · Sensor readings are simulated · Not for real-world safety decisions</footer>
+    <footer>Prototype / Demonstration · Readings and worker health values are simulated unless a compatible wristband is connected · Not for real-world safety decisions</footer>
   </div>
   <script src="script.js"></script>
 </body>
