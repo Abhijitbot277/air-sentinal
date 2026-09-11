@@ -27,13 +27,27 @@
         <article class="card attendance-card"><div class="card-heading"><div><p class="eyebrow">ENTRY & EXIT LOG</p><h3>Worker Shift Tracking</h3></div><span class="badge demo" id="shiftBadge">IN PROGRESS</span></div><div class="time-grid"><div><span>ENTRY TIME</span><strong id="entryTime">Not recorded</strong></div><div><span>EXIT TIME</span><strong id="exitTime">Not recorded</strong></div><div><span>DURATION</span><strong id="durationValue">00:00:00</strong></div></div><div class="actions"><button class="btn primary" id="entryBtn">Record Entry</button><button class="btn secondary" id="exitBtn">Record Exit</button><button class="btn secondary" id="resetShiftBtn">Reset Shift</button></div></article>
       </section>
       <section class="dashboard-grid">
-        <article class="card exposure-card" id="exposureCard"><div class="card-heading"><div><p class="eyebrow">H₂S MONITOR</p><h3 id="exposureTitle">No Exposure Response Detected</h3></div><div class="signal safe" id="signal">SAFE</div></div><div class="response"><div class="response-ring" id="responseRing"><span id="responseValue">12</span><small>NORMALIZED SIGNAL</small></div><div class="response-copy"><span>12-bit analog sensor → normalized 0–100</span><strong id="responseText">NORMAL</strong><p id="responseDesc">The displayed value is a normalized sensor-response score derived from the raw analog signal. It is not distance and it is not an H₂S concentration in ppm.</p></div></div><div class="sample-meta"><span>Sample <b id="sampleId">AS-0000</b></span><span>Raw ADC <b id="rawSensorValue">—</b></span><span id="sampleTime">Waiting</span></div></article>
+        <article class="card exposure-card" id="exposureCard">
+          <div class="card-heading"><div><p class="eyebrow">H₂S MONITOR</p><h3 id="exposureTitle">No Exposure Response Detected</h3></div><div class="signal safe" id="signal">SAFE</div></div>
+          <div class="response"><div class="response-ring" id="responseRing"><span id="responseValue">12</span><small>NORMALIZED SIGNAL</small></div><div class="response-copy"><span>Sensor signal</span><strong id="responseText">NORMAL</strong><p id="responseDesc">The normalized sensor signal is shown separately from H₂S concentration. A ppm value is displayed only when calibrated concentration data is supplied.</p></div></div>
+          <div class="concentration-panel">
+            <div class="concentration-heading"><div><span>H₂S CONCENTRATION</span><small>Calibrated reading</small></div><strong><span id="h2sValue">—</span> <small>ppm</small></strong></div>
+            <div class="concentration-scale" aria-label="H2S concentration scale">
+              <div class="scale-segment low"><span>0–1</span><small>LOW</small></div>
+              <div class="scale-segment elevated"><span>&gt;1–5</span><small>ELEVATED</small></div>
+              <div class="scale-segment high"><span>&gt;5–7</span><small>HIGH</small></div>
+              <div class="scale-segment over"><span>&gt;7</span><small>OVER RANGE</small></div>
+            </div>
+            <div class="concentration-status"><span id="h2sStatus">NO CALIBRATED READING</span><small id="h2sNote">Prototype display range: 0–7 ppm</small></div>
+          </div>
+          <div class="sample-meta"><span>Sample <b id="sampleId">AS-0000</b></span><span>Raw ADC <b id="rawSensorValue">—</b></span><span id="sampleTime">Waiting</span></div>
+        </article>
         <article class="card health-card"><div class="card-heading"><div><p class="eyebrow">HEALTH & ATTENDANCE</p><h3>Worker Overview</h3></div><span class="badge demo">DEMO DATA</span></div><div class="health-grid"><div><span>Blood Pressure</span><b>118 / 76</b><small>Demo value</small></div><div><span>Attendance</span><b class="good" id="healthAttendance">PRESENT</b><small>Entry/exit tracked</small></div><div><span>Worker ID</span><b id="healthWorker">AS-024</b><small>Device identity</small></div><div><span>Shift Duration</span><b id="healthDuration">00:00:00</b><small>Entry to exit</small></div></div></article>
       </section>
-      <section class="card history-card"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="6">No samples recorded yet.</td></tr></tbody></table></div></section>
+      <section class="card history-card"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>H₂S PPM</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="7">No samples recorded yet.</td></tr></tbody></table></div></section>
       <section class="card attendance-history-card"><div class="card-heading"><div><p class="eyebrow">ATTENDANCE DATABASE</p><h3>Entry / Exit Records</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>WORKER</th><th>WRISTBAND</th><th>ENTRY TIME</th><th>EXIT TIME</th><th>DURATION</th><th>STATUS</th></tr></thead><tbody id="attendanceHistory"><tr class="empty"><td colspan="6">No completed attendance records yet.</td></tr></tbody></table></div></section>
     </main>
-    <footer>Prototype / Demonstration · Readings and health values are simulated unless a compatible wristband is connected · Entry/exit records are demo data unless supplied by a real attendance system · Not for real-world safety decisions</footer>
+    <footer>Prototype / Demonstration · H₂S ppm is shown only when calibrated concentration data is supplied · Color bands are a prototype visualization, not a substitute for a certified gas monitor · Entry/exit records are demo data unless supplied by a real attendance system.</footer>
   </div>
   <script src="script.js"></script>
 </body>
