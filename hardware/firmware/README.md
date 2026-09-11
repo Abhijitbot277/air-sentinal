@@ -1,108 +1,56 @@
-# AIR SENTINAL — Firmware Architecture
+# AIR SENTINAL — ESP32-C3 Wristband Firmware
 
-## Goal
+This folder contains a reference firmware implementation for an ESP32-C3 wristband prototype.
 
-The firmware is responsible for identifying the wristband, collecting the optical sensing result, evaluating the current prototype state, and transmitting an event to the control computer.
+## What it does
 
-## Device state machine
+1. Starts the ADC input used by the prototype colorimetric sensing/readout circuit.
+2. Identifies the worker and wristband.
+3. Reads a raw sensor value every 5 seconds.
+4. Converts that raw value into a **prototype response index (0–100)**.
+5. Assigns `SAFE`, `UNKNOWN`, or `ALERT` using demo-only thresholds.
+6. Sends a JSON sample over Bluetooth Low Energy (BLE).
+7. Prints the same sample to Serial Monitor.
+8. Drives a local status LED.
 
-```text
-BOOT
-  │
-  ▼
-INITIALIZE
-  │
-  ├── Worker ID unavailable ──► ERROR
-  │
-  ▼
-READY
-  │
-  ▼
-CAPTURE RESPONSE
-  │
-  ▼
-VALIDATE SAMPLE
-  │
-  ├── Invalid / insufficient data ──► UNKNOWN
-  │
-  ▼
-INTERPRET RESPONSE
-  │
-  ├── below experimental threshold ──► SAFE
-  ├── above experimental threshold ──► ALERT
-  └── uncertain ─────────────────────► UNKNOWN
-  │
-  ▼
-TRANSMIT EVENT
-  │
-  ▼
-RETURN TO READY
-```
+## Dashboard connection
 
-## Firmware responsibilities
-
-- Initialize the microcontroller and connected interfaces.
-- Load or obtain the unique Worker/Wristband ID.
-- Trigger or receive an optical measurement.
-- Apply basic signal/color preprocessing.
-- Reject incomplete or invalid samples.
-- Assign a prototype state: `SAFE`, `ALERT`, or `UNKNOWN`.
-- Attach a timestamp and event ID.
-- Transmit the event to the control computer.
-- Provide local status feedback when hardware supports it.
-
-## Pseudocode
+The GitHub Pages dashboard can connect to the wristband from a browser that supports Web Bluetooth, such as Chrome/Edge on a compatible desktop. The dashboard and firmware use these UUIDs:
 
 ```text
-setup()
-    initialize_power()
-    initialize_worker_id()
-    initialize_optical_interface()
-    initialize_wireless()
-    initialize_status_output()
-
-loop()
-    sample = capture_response()
-
-    if sample_is_invalid(sample):
-        status = UNKNOWN
-    else:
-        features = preprocess(sample)
-        status = interpret(features)
-
-    event = create_event(
-        worker_id,
-        wristband_id,
-        timestamp,
-        features,
-        status
-    )
-
-    transmit(event)
-    update_local_indicator(status)
-    wait_for_next_sample()
+Service:        7b2a0001-6c4a-4d3b-9c1f-4153454e544c
+Characteristic: 7b2a0002-6c4a-4d3b-9c1f-4153454e544c
 ```
 
-## Validation rule
+The characteristic sends JSON such as:
 
-The final interpretation thresholds must be determined from controlled experimental measurements. The repository must not hard-code an invented H₂S concentration, accuracy, detection limit, or classification performance and describe it as validated.
-
-During early software development, simulated values may be used to test communication and dashboard behavior, but they must remain explicitly labeled as simulated.
-
-## Planned firmware modules
-
-```text
-firmware/
-├── README.md
-├── src/
-│   ├── main.*
-│   ├── worker_id.*
-│   ├── sensing.*
-│   ├── signal_processing.*
-│   ├── wireless.*
-│   └── status.*
-└── config/
-    └── device_config.example.*
+```json
+{
+  "event_id": "AS-12",
+  "worker_id": "AS-024",
+  "wristband_id": "WB-024",
+  "response_index": 62,
+  "sensor_raw": 2540,
+  "status": "UNKNOWN",
+  "source": "WRISTBAND",
+  "device_uptime_ms": 60000
+}
 ```
 
-The actual MCU and language will be selected after the hardware prototype is finalized.
+## Arduino IDE
+
+Select an ESP32-C3 board, install the Espressif ESP32 board package, and upload `src/main.cpp` as the sketch source. The BLE classes used here are included with the ESP32 Arduino core.
+
+Change these values for the actual prototype:
+
+- `SENSOR_PIN`
+- `STATUS_LED_PIN`
+- `WORKER_ID`
+- `WRISTBAND_ID`
+- BLE device name if required
+
+## Important validation note
+
+The `0–100` response index is a software abstraction for prototype testing. The ADC-to-response mapping and `SAFE_RESPONSE_MAX` / `ALERT_RESPONSE_MIN` values are **not H₂S safety limits** and must not be treated as validated gas concentration thresholds. Final interpretation must come from controlled measurements of the actual colorimetric sensing system.
+
+The web dashboard stores received/simulated samples in the browser's `localStorage`; it is a demo database, not a cloud database.
