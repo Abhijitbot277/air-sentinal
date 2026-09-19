@@ -9,20 +9,27 @@
 </head>
 <body>
   <div class="app-shell">
+    <aside class="sidebar" aria-label="Dashboard navigation">
+      <div class="side-brand"><div class="brand-mark">AS</div><div><strong>AIR SENTINAL</strong><small>SAFETY OS</small></div></div>
+      <nav><a class="nav-item active" href="#overview">◈ <span>Overview</span></a><a class="nav-item" href="#workers">◉ <span>Workers</span></a><a class="nav-item" href="#exposureCard">⚠ <span>H₂S Exposure</span></a><a class="nav-item" href="#history">▦ <span>Event History</span></a></nav>
+      <div class="side-footer"><span class="side-live"></span><div><b>System live</b><small>Local monitoring mode</small></div></div>
+    </aside>
+    <div class="main-shell">
     <header class="topbar">
       <div class="brand"><div class="brand-mark">AS</div><div><h1>AIR SENTINAL</h1><span>SMART WORKER SAFETY</span></div></div>
       <div class="system-status"><span class="pulse"></span> <span id="systemState">SYSTEM ONLINE</span> <small id="modeLabel">DEMO MODE</small></div>
     </header>
-    <main>
+    <main id="overview">
       <section class="hero"><div><p class="eyebrow">CENTRAL MONITORING SYSTEM</p><h2>Worker Safety Command Center</h2><p class="sub">Receive wristband samples, identify the worker, track entry and exit, calculate shift duration and store safety events.</p></div><div class="clock" id="clock">--:--:--</div></section>
+      <div class="alert-strip" id="uxAlert"><span class="alert-icon">!</span><div><b>Safety monitoring active</b><small>Connect a wristband or use simulation to stream worker data.</small></div><button class="alert-dismiss" aria-label="Dismiss">×</button></div>
       <section class="connection card"><div><p class="eyebrow">WRISTBAND LINK</p><h3>Device Connection</h3><p id="connectionText">No physical wristband connected. Use simulation or connect an ESP32-C3 prototype over Bluetooth.</p></div><div class="connection-actions"><button class="btn primary" id="connectBtn">Connect Wristband</button><button class="btn secondary" id="simulateBtn">Simulate Sample</button><button class="btn secondary" id="clearBtn">Clear Alert</button></div></section>
-      <section class="stats-grid">
+      <section class="section-block" aria-label="System overview"><div class="section-label">LIVE OVERVIEW</div><div class="stats-grid">
         <article class="card stat"><span>ACTIVE WORKERS</span><strong id="activeWorkers">01</strong><em id="attendanceState">Worker present</em></article>
         <article class="card stat"><span>SYSTEM STATUS</span><strong class="good" id="systemStatus">SAFE</strong><em id="statusNote">No active exposure alert</em></article>
         <article class="card stat"><span>EXPOSURE EVENTS</span><strong id="eventCount">00</strong><em>Stored in this browser</em></article>
         <article class="card stat"><span>WORKER DURATION</span><strong id="durationStat">00:00:00</strong><em>Calculated from entry → exit</em></article>
-      </section>
-      <section class="dashboard-grid">
+      </div></section>
+      <section class="dashboard-grid" id="workers">
         <article class="card worker-card"><div class="card-heading"><div><p class="eyebrow">WORKER PROFILE</p><h3 id="workerIdTitle">AS-024</h3></div><span class="badge connected" id="deviceBadge">DEMO</span></div><div class="worker-main"><div class="avatar">AS</div><div><h4 id="workerRole">Maintenance Worker</h4><p>Worker ID: <b id="workerId">AS-024</b></p><p>Wristband: <b id="wristbandId">WB-024</b></p><p>Shift: <b>Day Shift</b></p></div></div><div class="mini-grid"><div><span>Attendance</span><b class="good" id="attendanceValue">PRESENT</b></div><div><span>Last Sync</span><b id="lastSync">Just now</b></div></div></article>
         <article class="card attendance-card"><div class="card-heading"><div><p class="eyebrow">ENTRY & EXIT LOG</p><h3>Worker Shift Tracking</h3></div><span class="badge demo" id="shiftBadge">IN PROGRESS</span></div><div class="time-grid"><div><span>ENTRY TIME</span><strong id="entryTime">Not recorded</strong></div><div><span>EXIT TIME</span><strong id="exitTime">Not recorded</strong></div><div><span>DURATION</span><strong id="durationValue">00:00:00</strong></div></div><div class="actions"><button class="btn primary" id="entryBtn">Record Entry</button><button class="btn secondary" id="exitBtn">Record Exit</button><button class="btn secondary" id="resetShiftBtn">Reset Shift</button></div></article>
       </section>
@@ -44,10 +51,11 @@
         </article>
         <article class="card health-card"><div class="card-heading"><div><p class="eyebrow">HEALTH & ATTENDANCE</p><h3>Worker Overview</h3></div><span class="badge demo">DEMO DATA</span></div><div class="health-grid"><div><span>Blood Pressure</span><b>118 / 76</b><small>Demo value</small></div><div><span>Attendance</span><b class="good" id="healthAttendance">PRESENT</b><small>Entry/exit tracked</small></div><div><span>Worker ID</span><b id="healthWorker">AS-024</b><small>Device identity</small></div><div><span>Shift Duration</span><b id="healthDuration">00:00:00</b><small>Entry to exit</small></div></div></article>
       </section>
-      <section class="card history-card"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>H₂S PPM</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="7">No samples recorded yet.</td></tr></tbody></table></div></section>
+      <section class="card history-card" id="history"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>H₂S PPM</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="7">No samples recorded yet.</td></tr></tbody></table></div></section>
       <section class="card attendance-history-card"><div class="card-heading"><div><p class="eyebrow">ATTENDANCE DATABASE</p><h3>Entry / Exit Records</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>WORKER</th><th>WRISTBAND</th><th>ENTRY TIME</th><th>EXIT TIME</th><th>DURATION</th><th>STATUS</th></tr></thead><tbody id="attendanceHistory"><tr class="empty"><td colspan="6">No completed attendance records yet.</td></tr></tbody></table></div></section>
     </main>
     <footer>Prototype / Demonstration · H₂S ppm is shown only when calibrated concentration data is supplied · Reference bands: 1 ppm, 5 ppm and 10 ppm are used for presentation; they are not a substitute for certified gas-monitor limits or time-weighted exposure assessment · Entry/exit records are demo data unless supplied by a real attendance system.</footer>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
