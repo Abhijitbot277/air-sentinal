@@ -11,7 +11,7 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="Dashboard navigation">
       <div class="side-brand"><div class="brand-mark">AS</div><div><strong>AIR SENTINAL</strong><small>SAFETY OS</small></div></div>
-      <nav><a class="nav-item active" href="#overview">◈ <span>Overview</span></a><a class="nav-item" href="#workers">◉ <span>Workers</span></a><a class="nav-item" href="#exposureCard">⚠ <span>H₂S Exposure</span></a><a class="nav-item" href="#history">▦ <span>Event History</span></a></nav>
+      <nav><a class="nav-item active" href="#overview">◈ <span>Overview</span></a><a class="nav-item" href="#workers">◉ <span>Workers</span></a><a class="nav-item" href="#exposureCard">⚠ <span>H₂S Exposure</span></a><a class="nav-item" href="#eventsSection">▦ <span>Event History</span></a></nav>
       <div class="side-footer"><span class="side-live"></span><div><b>System live</b><small>Local monitoring mode</small></div></div>
     </aside>
     <div class="main-shell">
@@ -51,7 +51,7 @@
         </article>
         <article class="card health-card"><div class="card-heading"><div><p class="eyebrow">HEALTH & ATTENDANCE</p><h3>Worker Overview</h3></div><span class="badge demo">DEMO DATA</span></div><div class="health-grid"><div><span>Blood Pressure</span><b>118 / 76</b><small>Demo value</small></div><div><span>Attendance</span><b class="good" id="healthAttendance">PRESENT</b><small>Entry/exit tracked</small></div><div><span>Worker ID</span><b id="healthWorker">AS-024</b><small>Device identity</small></div><div><span>Shift Duration</span><b id="healthDuration">00:00:00</b><small>Entry to exit</small></div></div></article>
       </section>
-      <section class="card history-card" id="history"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>H₂S PPM</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="7">No samples recorded yet.</td></tr></tbody></table></div></section>
+      <section class="card history-card" id="eventsSection"><div class="card-heading"><div><p class="eyebrow">EVENT DATABASE</p><h3>Recent Wristband Samples</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>TIME</th><th>SAMPLE</th><th>WORKER</th><th>RESPONSE</th><th>H₂S PPM</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history"><tr class="empty"><td colspan="7">No samples recorded yet.</td></tr></tbody></table></div></section>
       <section class="card attendance-history-card"><div class="card-heading"><div><p class="eyebrow">ATTENDANCE DATABASE</p><h3>Entry / Exit Records</h3></div><span class="badge demo">LOCAL DEMO DATABASE</span></div><div class="table-wrap"><table><thead><tr><th>WORKER</th><th>WRISTBAND</th><th>ENTRY TIME</th><th>EXIT TIME</th><th>DURATION</th><th>STATUS</th></tr></thead><tbody id="attendanceHistory"><tr class="empty"><td colspan="6">No completed attendance records yet.</td></tr></tbody></table></div></section>
     </main>
     <footer>Prototype / Demonstration · H₂S ppm is shown only when calibrated concentration data is supplied · Reference bands: 1 ppm, 5 ppm and 10 ppm are used for presentation; they are not a substitute for certified gas-monitor limits or time-weighted exposure assessment · Entry/exit records are demo data unless supplied by a real attendance system.</footer>
